@@ -7,7 +7,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @all_ratings = ['G', 'PG', 'PG-13', 'R']
+    #debugger
+    session[:order] = params[:order] unless params[:order].nil?
+    session[:ratings] = params[:ratings] unless params[:ratings].nil?
+    if (params[:order].nil? and session[:order]) or (params[:ratings].nil? and session[:ratings])
+      flash.keep
+      redirect_to movies_path(order: session[:order], ratings: session[:ratings])
+    end
+    @ratings = params[:ratings] ? params[:ratings].keys : @all_ratings
+    @order = params[:order]
+    @movies = Movie.find_all_by_rating(@ratings, order: @order)
   end
 
   def new
