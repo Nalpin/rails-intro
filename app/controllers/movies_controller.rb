@@ -11,13 +11,13 @@ class MoviesController < ApplicationController
     #debugger
     session[:order] = params[:order] unless params[:order].nil?
     session[:ratings] = params[:ratings] unless params[:ratings].nil?
-    if (params[:order].nil? and session[:order]) or (params[:ratings].nil? and session[:ratings])
-      flash.keep
-      redirect_to movies_path(order: session[:order], ratings: session[:ratings])
+    @order = session[:order]
+    @ratings = session[:ratings] ? session[:ratings] : Hash[@all_ratings.map {|x| [x, 1]}]
+    if (session[:order] && params[:order].nil?) || (session[:ratings] && params[:ratings].nil?)
+       flash.keep    
+       redirect_to movies_path(order: session[:order], ratings: session[:ratings])
     end
-    @ratings = params[:ratings] ? params[:ratings].keys : @all_ratings
-    @order = params[:order]
-    @movies = Movie.find_all_by_rating(@ratings, order: @order)
+    @movies = Movie.find_all_by_rating(@ratings.keys, order: @order)
   end
 
   def new
